@@ -5,10 +5,9 @@ CREATE TABLE users
 (
     id         INT AUTO_INCREMENT PRIMARY KEY,
     name       VARCHAR(50)  NOT NULL,
-    email      VARCHAR(100) NOT NULL,
-    birth_date DATE,
+    age        INT,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
 );
 
-INSERT INTO users(name, email, birth_date) VALUES ("Alice", "alice.cooper@test.com", "1987-07-05");
-INSERT INTO users(name, email, birth_date) VALUES ("Bob", "bob.dylan@test.com", "1975-03-19");
+INSERT INTO users(name, age) VALUES ("Alice", 25);
+INSERT INTO users(name, age) VALUES ("Bob", 31);
