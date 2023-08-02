@@ -40,9 +40,8 @@ WHERE name = "Alice";
 <td>
 
 ```sql
-START TRANSACTION;
-select age
-from users
+SELECT age
+FROM users
 WHERE name = "Alice";
 -- retrieves 42 in Read Uncommitted even it is not committed by Transaction 2
 ```
@@ -54,6 +53,7 @@ WHERE name = "Alice";
 </table>
 
 ### Non-repeatable Reads
+
 A non-repeatable read occurs when a transaction retrieves a row twice and that
 row is updated by another transaction that is committed in between.
 
@@ -67,8 +67,8 @@ row is updated by another transaction that is committed in between.
 
 ```sql
 START TRANSACTION;
-select age
-from users
+SELECT age
+FROM users
 WHERE name = "Alice";
 -- retrieves 25
 ```
@@ -95,12 +95,10 @@ COMMIT;
 <td>
 
 ```sql
-START TRANSACTION;
-select age
-from users
+SELECT age
+FROM users
 WHERE name = "Alice";
 -- retrieves 42 in Read Uncommitted and Read Committed
-COMMIT;
 ```
 
 </td>
@@ -109,9 +107,12 @@ COMMIT;
 </tr>
 </table>
 
-### Phantom reads
+### Phantom Reads
+
 A phantom read occurs when a transaction retrieves a set of rows twice and new rows are inserted into or removed from
 that set by another transaction that is committed in between.
+
+#### Scenario 1
 
 <table>
 <tr>
@@ -150,12 +151,66 @@ COMMIT;
 <td>
 
 ```sql
-START TRANSACTION;
 SELECT name
 FROM users
 WHERE age > 18;
 -- retrieves Alice, Bob and Carl when Phantom Reads reproduced 
+```
+
+</td>
+<td>
+</td>
+</tr>
+</table>
+
+#### Scenario 2
+
+<table>
+<tr>
+<th> Transaction 1 </th>
+<th> Transaction 2 </th>
+</tr>
+<tr>
+<td>
+
+```sql
+START TRANSACTION;
+SELECT name
+FROM users
+WHERE age > 18;
+-- retrieves Alice and Bob
+```
+
+</td>
+<td>
+</td>
+</tr>
+<tr>
+<td></td>
+<td>
+
+```sql
+START TRANSACTION;
+INSERT INTO users(name, age)
+VALUES ("Carl", 27);
 COMMIT;
+```
+
+</td>
+</tr>
+<tr>
+<td>
+
+```sql
+
+UPDATE users
+SET age = 42
+WHERE name = "Carl";
+
+SELECT name
+FROM users
+WHERE age > 18;
+-- retrieves Alice, Bob and Carl when Phantom Reads reproduced
 ```
 
 </td>
@@ -166,11 +221,9 @@ COMMIT;
 
 ### MySQL
 
-|                  | Dirty Read                                    | Non-repeatable Reads                          | Phantom Reads                                 |
-|------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|
-| Read Uncommitted | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
-| Read Committed   | <span style="color:green">avoided</span>      | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
-| Repeatable Read  | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
-| Serializable     | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
-
-> Phantom Reads not reproduced in Mysql 8 on Repeatable Read isolation level
+|                  | Dirty Read                                    | Non-repeatable Reads                          | Phantom Reads Scenario 1                      | Phantom Reads Scenario 2                      |
+|------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|
+| Read Uncommitted | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
+| Read Committed   | <span style="color:green">avoided</span>      | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
+| Repeatable Read  | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:red">**reproduced**</span> |
+| Serializable     | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
