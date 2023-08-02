@@ -11,3 +11,4 @@ CREATE TABLE users
 
 INSERT INTO users(name, age) VALUES ("Alice", 25);
 INSERT INTO users(name, age) VALUES ("Bob", 31);
+INSERT INTO users(name, age) VALUES ("Mike", 23);

@@ -1,3 +1,13 @@
+## HSA. Homework10. Transactions, Isolations, Locks
+
+The goal of the project is to investigate common isolation problems
+in MySql and PostgreSql on different isolation levels
+
+Investigated problems:
+* Dirty Read
+* Non-repeatable Reads
+* Phantom Reads
+
 ### Dirty Read
 
 A dirty read occurs when a transaction retrieves
@@ -43,7 +53,8 @@ WHERE name = "Alice";
 SELECT age
 FROM users
 WHERE name = "Alice";
--- retrieves 42 in Read Uncommitted even it is not committed by Transaction 2
+-- retrieves 42 in Read Uncommitted 
+-- even it is not committed by Transaction 2
 ```
 
 </td>
@@ -98,7 +109,8 @@ COMMIT;
 SELECT age
 FROM users
 WHERE name = "Alice";
--- retrieves 42 in Read Uncommitted and Read Committed
+-- retrieves 42 in Read Uncommitted
+-- and Read Committed
 ```
 
 </td>
@@ -154,7 +166,8 @@ COMMIT;
 SELECT name
 FROM users
 WHERE age > 18;
--- retrieves Alice, Bob and Carl when Phantom Reads reproduced 
+-- retrieves Alice, Bob and Carl
+-- when Phantom Reads reproduced 
 ```
 
 </td>
@@ -210,7 +223,8 @@ WHERE name = "Carl";
 SELECT name
 FROM users
 WHERE age > 18;
--- retrieves Alice, Bob and Carl when Phantom Reads reproduced
+-- retrieves Alice, Bob and Carl
+-- when Phantom Reads reproduced
 ```
 
 </td>
@@ -227,3 +241,14 @@ WHERE age > 18;
 | Read Committed   | <span style="color:green">avoided</span>      | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
 | Repeatable Read  | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:red">**reproduced**</span> |
 | Serializable     | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
+
+### PostgreSQL
+
+|                 | Dirty Read                               | Non-repeatable Reads                          | Phantom Reads Scenario 1                      | Phantom Reads Scenario 2                      |
+|-----------------|------------------------------------------|-----------------------------------------------|-----------------------------------------------|-----------------------------------------------|
+| Read Committed  | <span style="color:green">avoided</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> | <span style="color:red">**reproduced**</span> |
+| Repeatable Read | <span style="color:green">avoided</span> | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
+| Serializable    | <span style="color:green">avoided</span> | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      | <span style="color:green">avoided</span>      |
+
+### Conclusion
+PostgreSql handles **Phantom Reads** on **Repeatable Read** better than Mysql.
